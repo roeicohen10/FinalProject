@@ -1,8 +1,8 @@
 from pystreamfs import pystreamfs
 import numpy as np
 import pandas as pd
-from FinalProject.OL import *
-from FinalProject.OFS import *
+from OL import *
+from OFS import *
 
 
 class Stream_Data():
