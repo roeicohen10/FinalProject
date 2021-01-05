@@ -7,4 +7,5 @@ class OFSAlgo():
 
     @staticmethod
     def get_algo():
+        # return ofs.run_ofs,'Online feature selection (OFS)'
         return run_AI, 'Online feature selection (OFS)'

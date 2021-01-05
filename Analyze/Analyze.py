@@ -37,15 +37,15 @@ class Analyze:
         return self.end_time-self.start_time
 
     def show_number_of_features(self):
-        num_of_features_list = [len(x) for x in self.streaming.stats.features]
+        num_of_features_list = [len(x) for x in self.stats["features"]]
         plt.plot(num_of_features_list)
         plt.ylabel("Number of Features")
         plt.xlabel("Batch")
         plt.show()
 
     def show_accuracy_for_number_of_features(self):
-        num_of_features_list = [len(x) for x in self.streaming.stats.features]
-        plt.plot(self.streaming.stats['acc_measures'],num_of_features_list)
+        num_of_features_list = [len(x) for x in self.stats["features"]]
+        plt.plot(num_of_features_list,self.stats['acc_measures'])
         plt.ylabel("Accuracy")
         plt.xlabel("Number of Features")
         plt.show()

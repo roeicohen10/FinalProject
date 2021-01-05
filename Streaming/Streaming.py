@@ -1,4 +1,4 @@
-from pystreamfs import pystreamfs
+from .pystreaming import pystreamfs
 import numpy as np
 import pandas as pd
 from OL.OLModel import OLModel
@@ -26,8 +26,13 @@ class Stream_Data():
         self.feature_name = np.array(data.drop(target_name, 1).columns)
         self.data = np.array(data)
 
+    def set_X_Y(self,X,Y):
+        self.X, self.Y = X,Y
+
     def prepare_data(self, target_index, shuffle=False):
         self.X, self.Y = pystreamfs.prepare_data(self.data, target_index, shuffle)
+        print(self.X)
+        print(self.Y)
 
     # def set_params(self, params):
     #     self.params = params
@@ -49,8 +54,8 @@ class Stream_Data():
     def set_ol(self, model_name, regression=False, multi_class=False,**kwargs):
         self.ol,self.ol_name = OLModel.get_model(model_name, regression, multi_class)
 
-    def simulate_stream(self):
-        self.stats=pystreamfs.simulate_stream(self.X, self.Y, self.ofs, self.ol, self.params)
+    def simulate_stream(self,inc_num):
+        self.stats=pystreamfs.simulate_stream(self.X, self.Y, self.ofs, self.ol, self.params,inc_num=inc_num)
 
     def get_plot_stats(self):
         pystreamfs.plot_stats(self.stats, self.feature_name, self.params, self.ofs_name,self.ol_name).show()

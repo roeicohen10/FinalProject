@@ -24,15 +24,10 @@ def alpha_investing(X, y, w0, dw):
     n_samples, n_features = X.shape
     w = w0
     F = []  # selected features
-    X_old = X[:, F]
     for i in range(n_features):
         x_can = X[:, i]  # generate next feature
-        alpha = w/2/(i+1)
-        print(i)
-        # print(len(F))
-        # X_old = X[:, F]
-        # print("X_old: ")
-        # print(X_old.shape)
+        alpha = w / 2 / (i + 1)
+        X_old = X[:, F]
         if i is 0:
             X_old = np.ones((n_samples, 1))
             linreg_old = linear_model.LinearRegression()
@@ -51,20 +46,19 @@ def alpha_investing(X, y, w0, dw):
         error_new = 1 - logreg_new.score(X_new, y)
 
         # calculate p-value
-        pval = np.exp((error_new - error_old)/(2*error_old/n_samples))
+        pval = np.exp((error_new - error_old) / (2 * error_old / n_samples))
         if pval < alpha:
             F.append(i)
             w = w + dw - alpha
         else:
             w -= alpha
+
+        if i==0 and len(F) == 0:
+            F.append(i)
     return np.array(F)
 
 def run_AI(X,Y,w,param):
     dw=param['dw']
     w0=param['w0']
-    print("Y: ")
-    print(Y.shape)
-    print("X: ")
-    print(X.shape)
-    w=alpha_investing(X,Y,w0,dw)
-    return w,param
+    selected_features = alpha_investing(X,Y,w0,dw)
+    return selected_features,param
