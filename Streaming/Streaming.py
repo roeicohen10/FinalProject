@@ -1,8 +1,8 @@
 from pystreamfs import pystreamfs
 import numpy as np
 import pandas as pd
-from OFS import *
-from OL import OLModel
+from OL.OLModel import OLModel
+from OFS.OFSAlgo import OFSAlgo
 
 
 class Stream_Data():
@@ -11,31 +11,46 @@ class Stream_Data():
         self.ol = None
         self.ol_name = None
         self.ofs = None
+        self.ofs_name = None
         self.feature_name = None
         self.X = None
         self.Y = None
         self.stats=None
         self.params = dict()
+        # self.params['num_features']=0
+        self.params['batch_size']=0
 
-    def set_data(self, path):
+
+    def set_data(self, path,target_name):
         data = pd.read_csv(path)
-        self.feature_name = np.array(data.drop('target', 1).columns)
+        self.feature_name = np.array(data.drop(target_name, 1).columns)
         self.data = np.array(data)
 
-    def prepare_data(self, target_index, shuffle):
+    def prepare_data(self, target_index, shuffle=False):
         self.X, self.Y = pystreamfs.prepare_data(self.data, target_index, shuffle)
 
-    def set_params(self, params):
-        self.params = params
+    # def set_params(self, params):
+    #     self.params = params
+    #
+    def set_num_feature(self,num):
+        self.params['num_features']=num
 
-    def set_ofs(self, algorithm):
-        self.ofs = algorithm
+    def set_batch_size(self,num):
+        self.params['batch_size'] = num
+
+    def set_ofs(self):
+        self.ofs,self.ofs_name = OFSAlgo.get_algo()
+
+
+    # def set_ofs(self,algo):
+    #     self.ofs=algo
+    #     self.ofs_name = "invasing"
 
     def set_ol(self, model_name, regression=False, multi_class=False,**kwargs):
-        self.ol,self.ol_name = OLModel.get_model(model_name, regression, multi_class,**kwargs)
+        self.ol,self.ol_name = OLModel.get_model(model_name, regression, multi_class)
 
     def simulate_stream(self):
         self.stats=pystreamfs.simulate_stream(self.X, self.Y, self.ofs, self.ol, self.params)
 
     def get_plot_stats(self):
-        return pystreamfs.plot_stats(self.stats, self.feature_names, self.params, 'Online feature selection (OFS)',self.ol_name)
+        pystreamfs.plot_stats(self.stats, self.feature_name, self.params, self.ofs_name,self.ol_name).show()
