@@ -1,28 +1,21 @@
 import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
-from Streaming.Streaming import *
+from Backend.Streaming.Streaming import *
+from mpl_toolkits.mplot3d import Axes3D
 
 class Analyze:
     def __init__(self, stats):
-        self.start_time = None
-        self.end_time = None
         self.stats= stats
 
 
-    def set_start_time(self,start_time):
-        self.start_time=start_time
-
-    def set_end_time(self,end_time):
-        self.end_time=end_time
-
-    def show_time_measures_plot(self,dataset_name,learning_algorithm_name):
-        batch_len = len(self.stats['time_measures'])
-        df = pd.DataFrame([batch_len,self.stats['time_measures']])
+    def show_fs_time_measures_plot(self,dataset_name,learning_algorithm_name):
+        batch_len = len(self.stats['fs_time_measures'])
+        df = pd.DataFrame([batch_len,self.stats['fs_time_measures']])
         df = df.transpose()
         sns.scatterplot(data=df, x=df[0], y=df[1])
-        plt.title("Time taken for each batch\n" + "Dataset name: " + dataset_name + "\n" + "Learning Algorithm name: " + learning_algorithm_name)
-        plt.ylabel("Time")
+        plt.title("Time taken for Feature Selection for each batch\n" + "Dataset name: " + dataset_name + "\n" + "Learning Algorithm name: " + learning_algorithm_name)
+        plt.ylabel("Feature Selection Time")
         plt.xlabel("Batch")
         plt.show()
 
@@ -46,8 +39,6 @@ class Analyze:
         plt.xlabel("Batch")
         plt.show()
 
-    def get_run_time(self):
-        return self.end_time-self.start_time
 
     def show_number_of_features_for_batch(self,dataset_name,learning_algorithm_name):
         num_of_features_list = [len(x) for x in self.stats["features"]]
@@ -69,6 +60,35 @@ class Analyze:
         plt.xlabel("Number of Features")
         plt.ylabel("Accuracy")
         plt.show()
+
+    def show_fs_time_measures_plot(self,dataset_name,learning_algorithm_name):
+        batch_len = len(self.stats['proc_time_measures'])
+        df = pd.DataFrame([batch_len,self.stats['proc_time_measures']])
+        df = df.transpose()
+        sns.scatterplot(data=df, x=df[0], y=df[1])
+        plt.title("Time taken for the process for each batch\n" + "Dataset name: " + dataset_name + "\n" + "Learning Algorithm name: " + learning_algorithm_name)
+        plt.ylabel("Process Time")
+        plt.xlabel("Batch")
+        plt.show()
+
+    def show_3d_proc_time_accuracy_batch(self,dataset_name,learning_algorithm_name):
+        batch_len = len(self.stats['acc_measures'])
+        df = pd.DataFrame([batch_len,self.stats['acc_measures'],self.stats['proc_time_measures']])
+        df = df.transpose()
+        sns.set(style="darkgrid")
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        x=df[0]
+        y=df[1]
+        z=df[2]
+        plt.title("Accuracy gained given the process time and batch number\n" + "Dataset name: " + dataset_name + "\n" + "Learning Algorithm name: " + learning_algorithm_name)
+        ax.set_xlabel("Batch")
+        ax.set_ylabel("Accuracy")
+        ax.set_zlabel("Process Time")
+        ax.scatter(x,y,z)
+        plt.show()
+
+
 
 
 
