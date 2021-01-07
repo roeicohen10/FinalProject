@@ -3,6 +3,8 @@ import tkinter as tk
 from tkinter import *
 from Backend.main import run_simulation
 
+
+
 OL_OPTIONS = [
     'K-NN',
     'NN',
@@ -26,6 +28,9 @@ class Window:
         self.create_param_textbox()
         self.create_file_chooser()
         self.create_selected_algo()
+
+        self.run_btn=tk.Button(self.start_frame, text="Run",command=self.run, relief=GROOVE)
+
         self.set_item_position()
 
     def create_param_textbox(self):
@@ -78,6 +83,8 @@ class Window:
         self.ofs_lable.grid(row=1, column=3)
         self.ofs_menu.grid(row=1, column=4)
 
+        self.run_btn.grid(row=3, column=2)
+
 
 
 
@@ -88,4 +95,20 @@ class Window:
             file.close()
 
     def run(self):
-        run_simulation(self.path.get(),self.t_name_input.get(),self.t_index_input.get())
+        if self.path.get() == "":
+            self.popup("Please choose a dataset","Error")
+        if self.t_name_input.get() == "":
+            self.popup("Please Enter target name","Error")
+        if self.t_index_input.get() == "":
+            self.popup("Please Enter target index","Error")
+        if self.t_index_input.get().isnumeric() or int(self.t_index_input.get())<0:
+            self.popup("Please Enter a valid target index", "Error")
+
+
+        # run_simulation(self.path.get(),self.t_name_input.get(),self.t_index_input.get())
+
+    def popup(self,message,title):
+        popup = tk.Toplevel()
+        popup.geometry('300x100')
+        popup.wm_title(title)
+        tk.Label(popup,text=str(message)).pack()
