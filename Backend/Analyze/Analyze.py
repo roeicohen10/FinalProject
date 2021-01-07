@@ -15,7 +15,8 @@ class Analyze:
 
     def show_fs_time_measures_plot(self):
         batch_len = len(self.stats['fs_time_measures'])
-        df = pd.DataFrame([batch_len,self.stats['fs_time_measures']])
+        batch_len_list = list(range(0,batch_len))
+        df = pd.DataFrame([batch_len_list,self.stats['fs_time_measures']])
         df = df.transpose()
         sns.scatterplot(data=df, x=df[0], y=df[1])
         plt.title("Time taken for Feature Selection for each batch\n" + "Dataset name: " + self.dataset_name + "\n" + "Learning Algorithm name: " + self.learning_algorithm_name)
@@ -25,7 +26,8 @@ class Analyze:
 
     def show_accuracy_measures_plot(self):
         batch_len = len(self.stats['acc_measures'])
-        df = pd.DataFrame([batch_len,self.stats['acc_measures']])
+        batch_len_list = list(range(0, batch_len))
+        df = pd.DataFrame([batch_len_list,self.stats['acc_measures']])
         df = df.transpose()
         sns.scatterplot(data=df, x=df[0], y=df[1])
         plt.title("Accuracy gained for each batch\n" + "Dataset name: " + self.dataset_name + "\n" + "Learning Algorithm name: " + self.learning_algorithm_name)
@@ -35,7 +37,8 @@ class Analyze:
 
     def show_memory_measures_plot_for_batch(self):
         batch_len = len(self.stats['memory_measures'])
-        df = pd.DataFrame([batch_len,self.stats['memory_measures']])
+        batch_len_list = list(range(0, batch_len))
+        df = pd.DataFrame([batch_len_list,self.stats['memory_measures']])
         df = df.transpose()
         sns.scatterplot(data=df, x=df[0], y=df[1])
         plt.title("Memory used for each batch\n" + "Dataset name: " + self.dataset_name + "\n" + "Learning Algorithm name: " + self.learning_algorithm_name)
@@ -47,7 +50,8 @@ class Analyze:
     def show_number_of_features_for_batch(self):
         num_of_features_list = [len(x) for x in self.stats["features"]]
         batch_len = len(num_of_features_list)
-        df = pd.DataFrame([batch_len,num_of_features_list])
+        batch_len_list = list(range(0, batch_len))
+        df = pd.DataFrame([batch_len_list,num_of_features_list])
         df = df.transpose()
         sns.scatterplot(data=df,x=df[0],y=df[1])
         plt.title("Number of features for each batch\n"+"Dataset name: "+self.dataset_name+"\n"+"Learning Algorithm name: "+self.learning_algorithm_name)
@@ -67,7 +71,8 @@ class Analyze:
 
     def show_fs_time_measures_plot(self):
         batch_len = len(self.stats['proc_time_measures'])
-        df = pd.DataFrame([batch_len,self.stats['proc_time_measures']])
+        batch_len_list = list(range(0, batch_len))
+        df = pd.DataFrame([batch_len_list,self.stats['proc_time_measures']])
         df = df.transpose()
         sns.scatterplot(data=df, x=df[0], y=df[1])
         plt.title("Time taken for the process for each batch\n" + "Dataset name: " + self.dataset_name + "\n" + "Learning Algorithm name: " + self.learning_algorithm_name)
@@ -77,7 +82,8 @@ class Analyze:
 
     def show_3d_proc_time_accuracy_batch(self):
         batch_len = len(self.stats['acc_measures'])
-        df = pd.DataFrame([batch_len,self.stats['acc_measures'],self.stats['proc_time_measures']])
+        batch_len_list = list(range(0, batch_len))
+        df = pd.DataFrame([batch_len_list,self.stats['acc_measures'],self.stats['proc_time_measures']])
         df = df.transpose()
         sns.set(style="darkgrid")
         fig = plt.figure()
