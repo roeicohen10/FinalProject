@@ -1,5 +1,5 @@
 from Backend.OFS.alpha_investing import run_AI
-from pystreamfs.algorithms import ofs
+from Backend.Streaming.pystreaming.algorithms.ofs import run_ofs
 
 Algorithms = ['Alpha Investing']
 
@@ -12,4 +12,4 @@ class OFSAlgo():
         if (name == 'Alpha Investing'):
             return run_AI, 'Online feature selection (OFS)'
         else:
-            return ofs.run_ofs,'Online feature selection (OFS)'
+            return run_ofs,'Online feature selection (OFS)'
