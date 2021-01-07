@@ -45,7 +45,8 @@ def simulate_stream(X, Y, fs_algorithm, model, param, inc_num=False):
     warnings.filterwarnings("ignore")
 
     ftr_weights = np.zeros(X.shape[1], dtype=int)  # create empty feature weights array
-    stats = {'time_measures': [],
+    stats = {'fs_time_measures': [],
+             'proc_time_measures': [],
              'memory_measures': [],
              'acc_measures': [],
              'features': [],
@@ -53,7 +54,8 @@ def simulate_stream(X, Y, fs_algorithm, model, param, inc_num=False):
              'time_avg': 0,
              'memory_avg': 0,
              'acc_avg': 0,
-             'fscr_avg': 0}
+             'fscr_avg': 0
+             }
 
     # Stream simulation
     for i in range(0, X.shape[0], param['batch_size']):
@@ -81,7 +83,8 @@ def simulate_stream(X, Y, fs_algorithm, model, param, inc_num=False):
         model, acc = classify(X, Y, i, selected_ftr, model, param)
 
         # Save statistics
-        stats['time_measures'].append(t)
+        stats['proc_time_measures'].append(time.perf_counter() - start_t)
+        stats['fs_time_measures'].append(t)
         stats['memory_measures'].append(m)
 
         stats['features'].append(selected_ftr.tolist())
@@ -97,7 +100,8 @@ def simulate_stream(X, Y, fs_algorithm, model, param, inc_num=False):
     # end of stream simulation
 
     # Compute average statistics
-    stats['time_avg'] = np.mean(stats['time_measures'])  # average time in seconds
+    stats['fs_time_avg'] = np.mean(stats['fs_time_measures'])  # average time in seconds
+    stats['proc_time_avg'] = np.mean(stats['proc_time_measures'])  # average time in seconds
     stats['memory_avg'] = np.mean(stats['memory_measures'])  # average memory usage in Byte
     stats['acc_avg'] = np.mean(stats['acc_measures'])  # average accuracy score
     stats['fscr_avg'] = np.mean(stats['fscr_measures'])  # average feature selection change rate

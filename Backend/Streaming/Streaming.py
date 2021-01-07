@@ -1,8 +1,10 @@
-from .pystreaming import pystreamfs
+from Backend.Streaming.pystreaming import pystreamfs
 import numpy as np
 import pandas as pd
-from Backend.OL import OLModel
-from Backend.OFS import OFSAlgo
+from Backend.OL.OLModel import OLModel
+from Backend.OFS.OFSAlgo import OFSAlgo
+
+from Backend.Analyze import Analyze
 
 
 class Stream_Data():

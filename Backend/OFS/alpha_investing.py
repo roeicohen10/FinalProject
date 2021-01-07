@@ -61,4 +61,5 @@ def run_AI(X,Y,w,param):
     dw=param['dw']
     w0=param['w0']
     selected_features = alpha_investing(X,Y,w0,dw)
+    print(selected_features)
     return selected_features,param

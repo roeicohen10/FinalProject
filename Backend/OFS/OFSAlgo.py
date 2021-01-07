@@ -1,4 +1,4 @@
-from Backend.OFS import run_AI
+from Backend.OFS.alpha_investing import run_AI
 
 class OFSAlgo():
     def __init__(self):
