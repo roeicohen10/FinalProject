@@ -44,8 +44,8 @@ class Stream_Data():
     def set_batch_size(self,num):
         self.params['batch_size'] = num
 
-    def set_ofs(self):
-        self.ofs,self.ofs_name = OFSAlgo.get_algo()
+    def set_ofs(self,name):
+        self.ofs,self.ofs_name = OFSAlgo.get_algo(name)
 
 
     # def set_ofs(self,algo):

@@ -1,14 +1,16 @@
 from Backend.Streaming.Streaming import Stream_Data
 from Backend.OL.OLModel import MODELS
+from Backend.OFS.OFSAlgo import Algorithms
 from Backend.Analyze import Analyze
 import scipy.io
 
 
-def run_simulation(path,target_name,target_index,fs_model,fs_model_parms,ol_model_index,batch_size=50,mat=False):
+def run_simulation(path,target_name,target_index,fs_model_index,fs_model_parms,ol_model_index,batch_size=50,mat=False):
     stream = Stream_Data()
     stream.set_batch_size(batch_size)
     stream.set_num_feature(50)
     stream.set_ol(MODELS[ol_model_index])
+    stream.set_ofs(Algorithms[fs_model_index])
     if mat:
         mat = scipy.io.loadmat(path)
         X = mat['X']  # data
@@ -20,9 +22,6 @@ def run_simulation(path,target_name,target_index,fs_model,fs_model_parms,ol_mode
     else:
         stream.set_data(path, target_name)
         stream.prepare_data(target_index,shuffle=True)
-
-
-    stream.set_ofs()
     stream.params = fs_model_parms
 
     print("start simulate")
@@ -50,6 +49,6 @@ if __name__ == "__main__":
     path = "E:/data/COIL20.mat"
     suffix = path.split(".")[1]
     mat = True if suffix == "mat" else False
-    run_simulation(path, target_name="GPS Spoofing", target_index=21, fs_model="alpha", fs_model_parms=fs_model_parms, ol_model_index=0, batch_size=250, mat=mat)
+    run_simulation(path, target_name="GPS Spoofing", target_index=21, fs_model_index=0, fs_model_parms=fs_model_parms, ol_model_index=0, batch_size=250, mat=mat)
 
 
