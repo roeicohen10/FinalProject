@@ -48,7 +48,9 @@ if __name__ == "__main__":
         "dw":0.05,
         "batch_size": 250
     }
-    path = "E:/data/Atttack_Telemetry.csv"
-    run_simulation(path, target_name="GPS Spoofing", target_index=21, fs_model="alpha", fs_model_parms=fs_model_parms, ol_model_index=0, batch_size=250, mat=False)
+    path = "E:/data/COIL20.mat"
+    suffix = path.split(".")[1]
+    mat = True if suffix == "mat" else False
+    run_simulation(path, target_name="GPS Spoofing", target_index=21, fs_model="alpha", fs_model_parms=fs_model_parms, ol_model_index=0, batch_size=250, mat=mat)
 
 
