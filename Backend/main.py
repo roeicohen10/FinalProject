@@ -4,6 +4,7 @@ from Backend.OFS.OFSAlgo import Algorithms
 from Backend.Analyze import Analyze
 import scipy.io
 import os
+import numpy as np
 
 def run_simulation(path,target_name,target_index,fs_model_index,fs_model_parms,ol_model_index,batch_size=50,mat=False):
     stream = Stream_Data()
@@ -27,16 +28,23 @@ def run_simulation(path,target_name,target_index,fs_model_index,fs_model_parms,o
     print("start simulate")
     stream.simulate_stream(inc_num=False)
     print("end simulate")
-
+    ana_avg(stream.stats)
     analyze(stream.stats)
 
+
+def ana_avg(stats):
+
+    avg = np.average(stats["acc_measures"][:-1]) if len(stats["acc_measures"]) > 1 else stats["acc_measures"][0]
+    print(f"The avg is {avg}")
+
 def analyze(stats):
-    data = Analyze(stats)
+    # print(stats)
+    data = Analyze.Analyze(stats,"ionosphere","Alpha Investing")
     data.show_accuracy_measures_plot()
-    data.show_time_measures_plot()
-    data.show_memory_measures_plot()
     data.show_accuracy_for_number_of_features()
-    data.show_number_of_features()
+    data.show_fs_time_measures_plot()
+    data.show_process_time_measures_plot()
+
     print(f"Num of features per epoch: {[len(x) for x in stats['features']]}")
 
 
@@ -44,12 +52,13 @@ if __name__ == "__main__":
     fs_model_parms = {
         "w0":0.05,
         "dw":0.05,
-        "batch_size": 250
+        "batch_size": 4061,
+        'alpha':0.05
     }
 
-    path = "../data/COIL20.mat"
+    path = "E:/data/spambase.csv"
     suffix = os.path.basename(path).split(".")[1]
     mat = True if suffix == "mat" else False
-    run_simulation(path, target_name="GPS Spoofing", target_index=21, fs_model_index=0, fs_model_parms=fs_model_parms, ol_model_index=0, batch_size=250, mat=mat)
+    run_simulation(path, target_name="label", target_index=57, fs_model_index=2, fs_model_parms=fs_model_parms, ol_model_index=0, batch_size=500, mat=mat)
 
 

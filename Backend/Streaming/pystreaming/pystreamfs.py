@@ -67,13 +67,13 @@ def simulate_stream(X, Y, fs_algorithm, model, param, inc_num=False):
         start_t = time.perf_counter()
 
         # Perform feature selection
-        ftr_weights, param = fs_algorithm(X=X[i:i + param['batch_size']], Y=Y[i:i + param['batch_size']],
-                                          w=ftr_weights, param=param)
         if not inc_num:
             selected_ftr, param = fs_algorithm(X=X[i:i + param['batch_size']], Y=Y[i:i + param['batch_size']],
                                               w=ftr_weights, param=param)
         else:
-            selected_ftr = np.argsort(abs(ftr_weights))[::-1][:param['num_features']]  # top m features
+            ftr_weights, param = fs_algorithm(X=X[i:i + param['batch_size']], Y=Y[i:i + param['batch_size']],
+                                             w=ftr_weights, param=param)
+            selected_ftr = np.argsort(abs(ftr_weights))[::-1][:param[' ']]  # top m features
 
         # Memory and time taking
         t = time.perf_counter() - start_t

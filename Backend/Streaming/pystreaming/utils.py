@@ -45,6 +45,8 @@ def classify(X, Y, i, selected_ftr, model, param):
         y_train = Y[0:i]
 
     # Train model
+    # print(x_train)
+    # print(y_train)
     model.fit(x_train, y_train)
 
     # Predict test set
