@@ -1,0 +1,8 @@
+Data type: sparse-binary
+Number of features: 100000
+Number of examples and check-sums:
+     	Pos_ex	Neg_ex	Tot_ex	Check_sum
+Train	   78	  722	  800	727760.00
+Valid	   34	  316	  350	317752.00
+Test	   78	  722	  800	730851.00
+All  	  190	 1760	 1950	1776363.00

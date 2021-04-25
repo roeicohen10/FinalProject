@@ -3,7 +3,7 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier,KNeighborsRegressor
 from sklearn.neural_network import MLPClassifier,MLPRegressor
 
-MODELS = ["nn","knn","svm","naive_base"]
+MODELS = ["nn","knn","svm","naive_bayes"]
 
 class OLModel:
     def __init__(self):
