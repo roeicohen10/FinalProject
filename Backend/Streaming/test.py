@@ -19,7 +19,7 @@ import arff, numpy as np
 # new_model = KNNClassifier(n_neighbors=3, max_window_size=window_size)
 
 def init_model(model, model_params, X_train, y_train, ofs_algo=None, ofs_params=None, window_size=30):
-    ol_model =  KNNClassifier(n_neighbors=3, max_window_size=window_size)
+    ol_model =  NaiveBayes()
 
     selected_features = None
     ofs_running_time, ol_running_time = [], []
@@ -86,7 +86,9 @@ def run_simulation(X, y, window_size=3, ofs_algo=None, ofs_params=None, lazy=Tru
         prequential_accuracy.append(corrects / samples_counter)
 
         # if ddm.detected_change():
-        if lazy or (not lazy and ddm.detected_change()):
+        if lazy:
+            ol_model.partial_fit(record_x[:,selected_features], record_y)
+        elif ddm.detected_change():
             old_selected_features = selected_features
             ol_model, selected_features, ol_run_time, ofs_run_time = init_model(None, None,
                                                                                 X[record - window_size:record, :],
@@ -98,8 +100,6 @@ def run_simulation(X, y, window_size=3, ofs_algo=None, ofs_params=None, lazy=Tru
             if ofs_algo is not None:
                 ofs_running_time.extend(ofs_run_time)
             print(old_selected_features == selected_features)
-
-
 
 
     print('KNNClassifier usage example')
@@ -160,7 +160,7 @@ if __name__ == '__main__':
 
     print(x_train.shape)
     prequential_accuracy, ol_running_time, ofs_running_time = run_simulation(x_train, y_train, window_size=200,
-                                                                         ofs_algo=run_saola,
+                                                                         ofs_algo=run_osfs,
                                                                          ofs_params={'alpha': 0.05, 'dw': 0.05,
                                                                                      'fast': True})
     # prequential_accuracy, ol_running_time, ofs_running_time = run_simulation(x_train, y_train, window_size=150)
