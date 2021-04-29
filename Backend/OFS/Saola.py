@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.metrics import mutual_info_score
-import scipy.stats
+from scipy import stats
 import math
 
 #Path has to lead to an .npy file
@@ -18,10 +18,10 @@ def run_saola(X,Y,w=0,param=0):
     #prepare attributes df
     data = pd.DataFrame(X).astype(float)
 
-    return np.array(saola(data, label)), param
+    return np.array(saola(data, label,alpha=param['alpha'])), param
 
 
-def saola(data,label):
+def saola(data,label,alpha = 0.01):
     selected_features_indexes = set()
     N = data.shape[0]
     for i in range(data.shape[1]):
@@ -33,7 +33,9 @@ def saola(data,label):
         zTrans = np.arctanh(corrC)
         zScore = zTrans*np.sqrt(N - 3)
 
-        if zScore < 2.32:
+        alpha_z_score = abs(stats.norm.ppf(alpha))
+
+        if zScore < alpha_z_score:
             continue
 
         if sum(selected_features_indexes) == 0:

@@ -26,7 +26,7 @@ def prepare_data(data, target, shuffle):
     return X, Y
 
 
-def simulate_stream(X, Y, fs_algorithm, model, param, inc_num=False):
+def simulate_stream(X, Y, fs_algorithm, model, ofs_param, ol_param, inc_num=False):
     """Feature selection on simulated data stream
 
     Stream simulation by batch-wise iteration over dataset.
@@ -58,6 +58,16 @@ def simulate_stream(X, Y, fs_algorithm, model, param, inc_num=False):
              }
 
     # Stream simulation
+    #
+    # # ol_model = model(**ol_param)
+    # for record in range(X.shape[0]):
+    #     record_x, record_y = X[record,:], Y[record,0]
+    #     my_pred = knn.predict(X)
+    #     if y[0] == my_pred[0]:
+    #         corrects += 1
+    #     knn = knn.partial_fit(X, y)
+    #     n_samples += 1
+
     for i in range(0, X.shape[0], param['batch_size']):
         if fs_algorithm is None or model is None:
             print('Feature selection algorithm or ML model is not defined!')

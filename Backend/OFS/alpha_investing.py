@@ -60,9 +60,9 @@ def alpha_investing(X, y, w0, dw):
             F.append(i)
     return np.array(F)
 
-def run_AI(X,Y,w,param):
+def run_AI(X,Y,param):
     dw=param['dw']
-    w0=param['w0']
+    w0=param['alpha']
     selected_features = alpha_investing(X,Y,w0,dw)
     print(selected_features)
     return selected_features,param
@@ -72,7 +72,7 @@ def read_doth(file_name,dim,type=int):
     all_records = []
     with open(f'C:/Users/Roi/Documents/Degree/Semester 8/FinalProject/data/validation/{file_name}','r') as f:
         for line in f:
-            line = line.rstrip()
+            line = line.rstrip().lstrip()
             dim_list = [0]*dim
             for index_tup in line.split(" "):
                 index_tup = index_tup.split(":")
