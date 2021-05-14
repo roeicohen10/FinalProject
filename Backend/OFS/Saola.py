@@ -4,6 +4,11 @@ from sklearn.metrics import mutual_info_score
 from scipy import stats
 import math
 
+
+
+SAOLA_PARAMS = {"alpha": 0.05}
+
+
 #Path has to lead to an .npy file
 def load_target(path):
     target = np.load(path)
@@ -34,7 +39,6 @@ def saola(data,label,alpha = 0.01):
         zScore = zTrans*np.sqrt(N - 3)
 
         alpha_z_score = abs(stats.norm.ppf(alpha))
-
         if zScore < alpha_z_score:
             continue
 

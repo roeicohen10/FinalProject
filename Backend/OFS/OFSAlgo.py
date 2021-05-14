@@ -1,24 +1,39 @@
-from Backend.OFS.alpha_investing import run_AI
-from Backend.Streaming.pystreaming.algorithms.ofs import run_ofs
-from Backend.OFS.Saola import run_saola
-from Backend.OFS.OSFS import run_SOSFS
+from Backend.OFS.OSFSn import run_osfs, OSFS_PARAMS, FOSFS_PARAMS
+from Backend.OFS.Saola import run_saola, SAOLA_PARAMS
+from Backend.OFS.alpha_investing import run_AI, AI_PARAMS
+from Backend.OFS.fires import init_fires,FIRES_PARAMS
 
+OFS_ALGO = [
+    {
+        "name": "-",
+        "func": None,
+        "params": None
 
-Algorithms = ['Alpha Investing','Saola','OSFS','FOSFS','OFS']
+    },
+    {
+        "name": "SAOLA",
+        "func": run_saola,
+        "params": SAOLA_PARAMS,
 
-class OFSAlgo():
-    def __init__(self):
-        pass
-
-    @staticmethod
-    def get_algo(name):
-        if name == 'Alpha Investing':
-            return run_AI, 'Alpha Investing'
-        elif name == 'Saola':
-            return run_saola, 'Saola'
-        elif name == 'OSFS':
-            return run_SOSFS, 'OSFS'
-        elif name == 'FOSFS':
-            return run_SOSFS, 'FOSFS'
-        else:
-            return run_ofs,'Online feature selection (OFS)'
+    },
+    {
+        "name": "Alpha Investing",
+        "func": run_AI,
+        "params": AI_PARAMS
+    },
+    {
+        "name": "OSFS",
+        "func": run_osfs,
+        "params": OSFS_PARAMS
+    }, {
+        "name": "Fast OSFS",
+        "func": run_osfs,
+        "params": FOSFS_PARAMS
+    }
+    ,
+    # {
+    #     "name": "Fires",
+    #     "func": init_fires,
+    #     "params": FIRES_PARAMS
+    # }
+]

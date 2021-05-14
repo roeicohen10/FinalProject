@@ -5,6 +5,11 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score
 import Backend.OFS.Saola as sa
 import Backend.OFS.OSFSn as osfs
+
+
+
+AI_PARAMS = {"alpha": 0.05, "dw":0.05}
+
 def alpha_investing(X, y, w0, dw):
     """
     This function implements streamwise feature selection (SFS) algorithm alpha_investing for binary regression or
@@ -64,7 +69,6 @@ def run_AI(X,Y,param):
     dw=param['dw']
     w0=param['alpha']
     selected_features = alpha_investing(X,Y,w0,dw)
-    print(selected_features)
     return selected_features,param
 
 

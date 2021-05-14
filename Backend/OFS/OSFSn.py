@@ -3,6 +3,11 @@ import pandas as pd
 import numpy as np
 from itertools import combinations
 import math
+
+
+OSFS_PARAMS = {"alpha": 0.05, "fast":False}
+FOSFS_PARAMS = {"alpha": 0.05, "fast":True}
+
 def run_osfs(X,Y,w=0,param=0):
 
     #prepare class attribute
@@ -19,7 +24,7 @@ def osfs(data,label,alpha=0.01):
     N = data.shape[0]
     for i in range(data.shape[1]):
         print(i)
-        print(f'Number of features:{len(selected_features_indexes)}')
+        print(selected_features_indexes)
         column_data = data.iloc[:,i]
         pearson_corr = column_data.corr(label.iloc[:,0])
         if math.isnan(pearson_corr):
@@ -51,8 +56,7 @@ def fast_osfs(data,label,alpha=0.01):
     selected_features_indexes = set()
     N = data.shape[0]
     for i in range(data.shape[1]):
-        print(i)
-        print(f'Number of features:{len(selected_features_indexes)}')
+
         column_data = data.iloc[:,i]
         pearson_corr = column_data.corr(label.iloc[:,0])
         if math.isnan(pearson_corr):
