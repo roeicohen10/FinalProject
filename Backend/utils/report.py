@@ -3,6 +3,7 @@ from docx.shared import Inches
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 from docxcompose.composer import Composer
 import os, glob
+import regex as re
 
 # get final project path
 DIR_PATH = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -12,9 +13,12 @@ SINGLE_EXPERIMENT_PATH = os.path.join(DIR_PATH, r'data\exp_singel_report.docx')
 DS_EXPERIMENT_PATH = os.path.join(DIR_PATH, r'data\dataset_exp_report.docx')
 EMPTY_DOC_PATH = os.path.join(DIR_PATH, r'data\empty_doc.docx')
 EMPTY_DOC__WITH_PARA_PATH = os.path.join(DIR_PATH, r'data\empty_doc_with_para.docx')
+ACC_DOC_PATH = os.path.join(DIR_PATH, r'data\acc_conclusion_300_500.docx')
 
 SINGLE_EXPERIMENT_FNAME = 'single_exp_report.docx'
 DS_FNAME = 'ds_report.docx'
+ACC_FNAME_PATTERN = 'log_\d{3}_.*_.*\.log'
+LOG_PATTERN = '*.log'
 
 class Report:
 
@@ -63,6 +67,7 @@ class Report:
         rows[1].cells[1].text = kwargs.get('ai_runtime','-')
         rows[2].cells[1].text = kwargs.get('osfs_runtime', '-')
         rows[3].cells[1].text = kwargs.get('fosfs_runtime', '-')
+        rows[4].cells[1].text = kwargs.get('fires_runtime', '-')
 
     @classmethod
     def fill_ds_ol_runtime_table(cls, table,**kwargs):
@@ -82,12 +87,12 @@ class Report:
         doc.tables[0].rows[0].cells[1].text =  kwargs.get('ds_name','')
         doc.tables[1].rows[2].cells[1].text = kwargs.get('window_sizes', '')
 
-        paragraph_num = 6
-        for image in [kwargs.get('wo_image', ''),kwargs.get('ai_image', ''),kwargs.get('osfs_image', ''),kwargs.get('fosfs_image', ''),kwargs.get('saola_image', '')]:
+        paragraph_num = 7
+        for image in [kwargs.get('wo_image', ''),kwargs.get('ai_image', ''),kwargs.get('osfs_image', ''),kwargs.get('fosfs_image', ''),kwargs.get('saola_image', ''),kwargs.get('fires_image', '')]:
             try:
                 doc = cls.add_pic(doc, image, width=4.58, height=2.8, paragraph_num=paragraph_num)
                 paragraph_num += 2
-                if paragraph_num == 10:
+                if paragraph_num == 11:
                     paragraph_num += 6
 
             except FileNotFoundError as e:
@@ -127,6 +132,73 @@ class Report:
         ds_report.extend(single_reports)
         cls.combine_word_documents(ds_report, ds_name)
 
+
+
+    @classmethod
+    def find_accuracy_files(cls):
+        log_files =  glob.glob(fr'{EXPERIMENT_FOLDER_PATH}\**\{LOG_PATTERN}', recursive=True)
+
+        return list(filter(lambda path: re.match(ACC_FNAME_PATTERN, os.path.basename(path)), log_files))
+
+    @classmethod
+    def get_experiments_accuracy(cls, accuracy_files_paths):
+        accuracies = {}
+        for file in accuracy_files_paths:
+            file_name = os.path.basename(file).split("_")
+            window_size, ofs_algo, ol_algo = file_name[1], file_name[2], file_name[3].split(".")[0]
+            accuracy = cls.get_singel_experiment_accuracy(file)
+            ds_name = os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(file)))))
+            if not accuracies.get(ofs_algo,None):
+                accuracies[ofs_algo] = {}
+            if not accuracies[ofs_algo].get(ol_algo,None):
+                accuracies[ofs_algo][ol_algo] = {}
+            if not accuracies[ofs_algo][ol_algo].get(ds_name,None):
+                accuracies[ofs_algo][ol_algo][ds_name] = {}
+            # if not accuracies[ofs_algo][ol_algo][ds_name].get(window_size,None):
+            accuracies[ofs_algo][ol_algo][ds_name][window_size] = accuracy
+
+        return accuracies
+    @classmethod
+    def get_singel_experiment_accuracy(file,file_path):
+        try:
+            with open(file_path) as acc_file:
+                for line in acc_file:
+                    if 'Last accuracy' in line:
+                        acc = float(line.split(":")[1].strip())
+                        return f'{acc:.4f}'
+        except FileNotFoundError as e:
+            return '0'
+        return '0'
+
+    @classmethod
+    def create_acc_conclusion_report(cls, accuracies):
+        doc = Document(ACC_DOC_PATH)
+        ol_algos = ['K-Nearest Neighbors 3','K-Nearest Neighbors 5','Naive Bayes','Neural Network','Random Forest']
+        for table in doc.tables:
+            for row_index, row in enumerate(table.rows):
+                if row_index == 0:
+                    ofs_algo = row.cells[0].text.split("(")[0].rstrip()
+                    continue
+                elif row_index < 3:
+                    continue
+                for cell_index,cell in enumerate(row.cells):
+                    if cell_index == 0:
+                        ds_name = cell.text.replace(' ','')
+                        continue
+                    elif cell_index == 1:
+                        window_size = cell.text
+                        continue
+
+                    if ofs_algo in accuracies:
+                        cell.text = accuracies[ofs_algo][ol_algos[cell_index-2]][ds_name][window_size]
+                    else:
+                        cell.text = accuracies['-'][ol_algos[cell_index - 2]][ds_name][window_size]
+                    cell.alignment = WD.CENTER
+        directory_path, file_name = os.path.dirname(ACC_DOC_PATH), os.path.basename(ACC_DOC_PATH).split(".")[0]
+        file_name = f'{file_name}_filled.docx'
+        doc.save(os.path.join(directory_path, file_name))
+
+
 if __name__ == '__main__':
     params_one = {
         'ds_name':'FordA',
@@ -136,16 +208,19 @@ if __name__ == '__main__':
         'osfs_image': r'C:\Users\Roi\Documents\Degree\Semester 8\FinalProject\data\Experiments\FordA\OSFS.png',
         'fosfs_image': r'C:\Users\Roi\Documents\Degree\Semester 8\FinalProject\data\Experiments\FordA\Fast OSFS.png',
         'saola_image': r'C:\Users\Roi\Documents\Degree\Semester 8\FinalProject\data\Experiments\FordA\SAOLA.png',
+        'fires_image': r'C:\Users\Roi\Documents\Degree\Semester 8\FinalProject\data\Experiments\FordA\SAOLA.png',
         'saola_runtime': str(520.2689666666658),
         'ai_runtime': str(1032.5714666666663),
         'osfs_runtime':str(1533.9393666666629),
         'fosfs_runtime':str(847.1284499999996),
+        'fires_runtime': str(847.1284499999996),
         'nn_runtime': str(1.570100000001684),
         'knn_3_runtime': str(7.662487499998871),
         'knn_5_runtime': str(7.662487499998871),
         'nb_runtime': str(3.379575000000301),
         'rf_runtime': str(3.379575000000301),
-        'export_path': r'C:\Users\Roi\Documents\Degree\Semester 8\FinalProject\data\Experiments\FordA'
+        'export_path': r'',
+        # 'export_path': r'C:\Users\Roi\Documents\Degree\Semester 8\FinalProject\data\Experiments\FordA'
     }
     params_two = {
         'ol_algo': 'ANN (default)',
@@ -163,7 +238,11 @@ if __name__ == '__main__':
     }
     # Report.create_ds_report(**params_one)
     # Report.create_single_experiment_report(**params_two)
-    Report.combine_ds_experiments_reports('ChlorineConcentration')
+    # Report.combine_ds_experiments_reports('ChlorineConcentration')
     # Report.find_report_files('ChlorineConcentration', single_report=False)
+    paths = Report.find_accuracy_files()
+    accuracies_rep = Report.get_experiments_accuracy(paths)
+    print('finished acc')
+    Report.create_acc_conclusion_report(accuracies_rep)
 
 

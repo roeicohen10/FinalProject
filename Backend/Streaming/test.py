@@ -135,9 +135,14 @@ def run_simulation(X, y, window_size=30, ol_algo=None, ol_params=None, ol_fit_pa
            stream, selected_features_tf_records, memory_usage
 
 
-def run_experiment(ds_name, ds_path, classes=None):
+def run_experiment(ds_name, ds_path, classes=None, arff_suffix=True):
     window_sizes = [300, 500]
-    dataset = arff.load(open(ds_path))
+    if arff_suffix:
+        dataset = arff.load(open(ds_path))
+    else:
+        dataset = pd.read_csv(ds_path)
+        dataset = dataset[(dataset != '?').all(1)]
+
     if not classes:
         try:
             for tup in dataset['attributes']:
@@ -149,9 +154,16 @@ def run_experiment(ds_name, ds_path, classes=None):
     export_ds_path = DEFAULT_EXPORT_PATH if not create_dir(DEFAULT_EXPORT_PATH, ds_name) else os.path.join(
         DEFAULT_EXPORT_PATH, ds_name)
 
-    data = np.array(dataset['data'])
-    x_train, y_train = data[:, :-1].astype(np.float), data[:, -1].astype(np.int)
+    if arff_suffix:
+        data = np.array(dataset['data'])
+    else:
+        data = dataset.to_numpy()
 
+
+    x_train, y_train = data[:, :-1].astype(np.float), data[:, -1].astype(np.int)
+    fires_data = create_binary_ds(data)
+    x_train_fires, y_train_fires = fires_data[:, :-1].astype(np.float), fires_data[:, -1].astype(np.int)
+    selected_features_mean = []
     ofs_experiments_results = {}
     ol_experiments_results = {}
     for wind_size in window_sizes:
@@ -162,14 +174,14 @@ def run_experiment(ds_name, ds_path, classes=None):
             ofs_path = ds_path if not create_dir(wind_path, ofs_algo['name']) else os.path.join(wind_path,
                                                                                                 ofs_algo['name'])
 
-            if ofs_algo.get('name') == "Fires":
-                ofs_algo["params"]["target_values"] = classes
-                ofs_algo["params"]["n_total_ftr"] = x_train.shape[1]
+            if ofs_algo.get('name') == "FIRES":
+                ofs_algo["init_params"]["target_values"] = [0,1]
+                ofs_algo["init_params"]["n_total_ftr"] = x_train_fires.shape[1]
 
-                func, model = ofs_algo["func"](ofs_algo["params"])
-                ofs_algo["func"] = func
-                ofs_algo["params"] = {"num_selected_features":5,
+                model = ofs_algo["init_func"](ofs_algo["init_params"])
+                ofs_algo["params"] = {"num_selected_features":int(np.ceil(np.mean(selected_features_mean))),
                                       "model": model}
+                selected_features_mean = []
 
             for ol_model in OL_MODELS:
                 ol_path = ds_path if not create_dir(ofs_path, ol_model['name']) else os.path.join(ofs_path,
@@ -180,8 +192,10 @@ def run_experiment(ds_name, ds_path, classes=None):
 
                 if "max_window_size" in ol_model.get("params"):
                     ol_model["params"]["max_window_size"] = wind_size
-                if "classes" in ol_model.get("fit_params"):
+                if "classes" in ol_model.get("fit_params") and ofs_algo.get('name') != "FIRES":
                     ol_model["fit_params"]["classes"] = classes
+                if "classes" in ol_model.get("fit_params") and ofs_algo.get('name') == "FIRES":
+                    ol_model["fit_params"]["classes"] = [0,1]
 
 
                 print("Starting new experiment")
@@ -189,7 +203,8 @@ def run_experiment(ds_name, ds_path, classes=None):
                 try:
                     prequential_accuracy, ol_running_time, ofs_running_time, \
                     selected_features_concept, selected_features_len, selected_features_true_false, stream, selected_features_tf_records, memory_usage = run_simulation(
-                        x_train, y_train,
+                        x_train if ofs_algo.get('name') != "FIRES" else x_train_fires,
+                        y_train if ofs_algo.get('name') != "FIRES" else y_train_fires,
                         window_size=wind_size,
                         ol_algo=ol_model['func'],
                         ol_params=ol_model['params'],
@@ -203,6 +218,8 @@ def run_experiment(ds_name, ds_path, classes=None):
                     continue
 
                 print(f"Last accuracy: {prequential_accuracy[-1]}")
+                if ofs_algo.get('name') != "FIRES" and ofs_algo.get('name') != "-":
+                    selected_features_mean.append(np.mean(selected_features_len))
 
                 acc_image_path, mem_image_path,acc_features_image_path, true_false_features_image_name = \
                     create_plots(prequential_accuracy, selected_features_len, selected_features_true_false, base_name,
@@ -235,8 +252,8 @@ def run_experiment(ds_name, ds_path, classes=None):
                 ol_experiments_results[ol_model['name']]["times"].append(np.mean(np.array(ol_running_time)) * 1000)
                 ol_experiments_results[ol_model['name']][f"{str(wind_size)}_acc"].append(prequential_accuracy[-1])
                 report_params = {
-                    'ol_algo': f"{ol_model['name']}({ol_model['params']})",
-                    'ofs_algo': f"{ofs_algo['name']}({ofs_algo['params']})",
+                    'ol_algo': f"{ol_model['name']}({ol_model['params_str']})",
+                    'ofs_algo': f"{ofs_algo['name']}({ofs_algo['params_str']})",
                     'window_size': str(wind_size),
                     'ol_runtime': f"{ol_experiments_results[ol_model['name']]['times'][-1]} ms",
                     'ofs_runtime': f"{ofs_experiments_results[ofs_algo['name']]['times'][-1]} ms",
@@ -271,10 +288,12 @@ def create_ds_report(ds_name,window_sizes, ofs_images, ofs_runtimes, ol_runtimes
         'osfs_image': ofs_images.get('OSFS',''),
         'fosfs_image': ofs_images.get('Fast OSFS',''),
         'saola_image': ofs_images.get('SAOLA',''),
+        'fires_image': ofs_images.get('FIRES', ''),
         'saola_runtime': str(ofs_runtimes.get('SAOLA','')),
         'ai_runtime': str(ofs_runtimes.get('Alpha Investing','')),
         'osfs_runtime':str(ofs_runtimes.get('OSFS','')),
         'fosfs_runtime':str(ofs_runtimes.get('Fast OSFS','')),
+        'fires_runtime': str(ofs_runtimes.get('FIRES', '')),
         'nn_runtime': str(ol_runtimes.get('Neural Network','')),
         'knn_3_runtime': str(ol_runtimes.get('K-Nearest Neighbors 3','')),
         'knn_5_runtime': str(ol_runtimes.get('K-Nearest Neighbors 5','')),
@@ -423,14 +442,37 @@ def create_dir(path, name):
     return True
 
 
+
+def create_binary_ds(data_array):
+    data_df = pd.DataFrame.from_records(data_array, coerce_float=True)
+    columns = data_df.columns
+
+    max_target_value = data_df[columns[-1]].value_counts().sort_values(ascending=False).index[0]
+
+    data_df[columns[-1]][data_df[columns[-1]] == max_target_value] = -2
+    max_target_value = -2
+
+    data_df[columns[-1]][data_df[columns[-1]] != max_target_value] = 0
+
+    data_df[columns[-1]][data_df[columns[-1]] == max_target_value] = 1
+    return data_df.to_numpy()
+
+
+
 if __name__ == '__main__':
     files_paths = [
-        r'C:\Users\Roi\Documents\Degree\Semester 8\פרוייקט גמר\datasets\new\Wafer\Wafer_TRAIN.arff',
-        r'C:\Users\Roi\Documents\Degree\Semester 8\פרוייקט גמר\datasets\new\NonInvasiveFetalECGThorax1\NonInvasiveFetalECGThorax1_TRAIN.arff',
+        r'C:\Users\Roi\Documents\Degree\Semester 8\פרוייקט גמר\datasets\new\FordA\FordA_TRAIN.arff',
+        r'C:\Users\Roi\Documents\Degree\Semester 8\פרוייקט גמר\datasets\new\EthanolLevel\EthanolLevel_TRAIN.arff',
+        r'C:\Users\Roi\Documents\Degree\Semester 8\פרוייקט גמר\datasets\new\ElectricDevices\ElectricDevices_TRAIN.arff',
+        r'C:\Users\Roi\Documents\Degree\Semester 8\פרוייקט גמר\datasets\new\RefrigerationDevices\RefrigerationDevices_TRAIN.arff',
+        r'C:\Users\Roi\Documents\Degree\Semester 8\פרוייקט גמר\datasets\new\ChlorineConcentration\ChlorineConcentration_TRAIN.arff',
         r'C:\Users\Roi\Documents\Degree\Semester 8\פרוייקט גמר\datasets\new\TwoPatterns\TwoPatterns_TRAIN.arff',
         r'C:\Users\Roi\Documents\Degree\Semester 8\פרוייקט גמר\datasets\new\SemgHandSubjectCh2\SemgHandSubjectCh2_TRAIN.arff',
+        r'C:\Users\Roi\Documents\Degree\Semester 8\פרוייקט גמר\datasets\new\NonInvasiveFetalECGThorax1\NonInvasiveFetalECGThorax1_TRAIN.arff',
+        r'C:\Users\Roi\Documents\Degree\Semester 8\פרוייקט גמר\datasets\new\Wafer\Wafer_TRAIN.arff',
     ]
-    file_names = ['Wafer','NonInvasiveFetalECGThorax1','TwoPatterns','SemgHandSubjectCh2']
+    file_names = ['FordA','EthanolLevel','ElectricDevices','RefrigerationDevices','ChlorineConcentration'
+                  ,'TwoPatterns','SemgHandSubjectCh2','NonInvasiveFetalECGThorax1','Wafer']
 
     for file_path, file_name in zip(files_paths, file_names):
         try:
@@ -439,11 +481,3 @@ if __name__ == '__main__':
         except Exception as e:
             print(e)
             pass
-    # x_val =[10,20,30,40,50]
-    # y_val = list(range(150))
-    # true_false = [[np.random.random()> 0.5 for z in range(150)] for x in range(5)]
-    # file_path=""
-    # title = "Selected and Unselected features per timestamp"
-    # x_label = "TimeStamp"
-    # y_label = "Features"
-    # create_true_false_scatter(x_val, y_val, true_false, file_path, title, x_label, y_label)

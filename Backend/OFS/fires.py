@@ -140,18 +140,6 @@ class FIRES:
 
 
     # ### ADD YOUR OWN MODEL HERE ##################################################
-    def __multi(self, x, y):
-        """ 
-        Your own model description.
-        
-        :param x: (np.ndarray) Batch of observations
-        :param y: (np.ndarray) Batch of labels
-        """
-        
-        gradientMu = yourFunction()  # Gradient of the (log) likelihood with respect to mu
-        gradientSigma = yourFunction()  # Gradient of the (log) likelihood with respect to sigma
-        self.mu += self.lr_mu * gradientMu
-        self.sigma += self.lr_sigma * gradientSigma
 
     def __compute_weights(self):
         """
@@ -175,8 +163,9 @@ class FIRES:
 
 
 def init_fires(params):
-    return run_fires, FIRES(**params)
+    return FIRES(**params)
 
-def run_fires(X,Y,params):
-    ftr_weights = params['model'].weigh_features(X,Y)  # Get feature weights with FIRES
-    ftr_selection = np.argsort(ftr_weights)[::-1][:params['num_selected_features']]
+def run_fires(X,Y,param):
+    ftr_weights = param['model'].weigh_features(X,Y)  # Get feature weights with FIRES
+    ftr_selection = np.argsort(ftr_weights)[::-1][:param['num_selected_features']]
+    return ftr_selection, param
