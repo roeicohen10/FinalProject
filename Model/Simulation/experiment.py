@@ -252,66 +252,6 @@ class Experiment:
             return f'{self.ds_name}_{str(self.window_size)}_{self.ofs.name}_{self.ol.name}'
         else:
             return f'{self.ds_name}_{str(self.window_size)}_-_{self.ol.name}'
+
 if __name__ == '__main__':
-
-    files_paths = [
-        r'C:\Users\Roi\Documents\Degree\Semester 8\פרוייקט גמר\datasets\new\FordA\FordA_TRAIN.arff',
-        r'C:\Users\Roi\Documents\Degree\Semester 8\פרוייקט גמר\datasets\new\EthanolLevel\EthanolLevel_TRAIN.arff',
-        r'C:\Users\Roi\Documents\Degree\Semester 8\פרוייקט גמר\datasets\new\ElectricDevices\ElectricDevices_TRAIN.arff',
-        r'C:\Users\Roi\Documents\Degree\Semester 8\פרוייקט גמר\datasets\new\RefrigerationDevices\RefrigerationDevices_TRAIN.arff',
-        r'C:\Users\Roi\Documents\Degree\Semester 8\פרוייקט גמר\datasets\new\ChlorineConcentration\ChlorineConcentration_TRAIN.arff',
-        r'C:\Users\Roi\Documents\Degree\Semester 8\פרוייקט גמר\datasets\new\TwoPatterns\TwoPatterns_TRAIN.arff',
-        r'C:\Users\Roi\Documents\Degree\Semester 8\פרוייקט גמר\datasets\new\SemgHandSubjectCh2\SemgHandSubjectCh2_TRAIN.arff',
-        r'C:\Users\Roi\Documents\Degree\Semester 8\פרוייקט גמר\datasets\new\NonInvasiveFetalECGThorax1\NonInvasiveFetalECGThorax1_TRAIN.arff',
-        r'C:\Users\Roi\Documents\Degree\Semester 8\פרוייקט גמר\datasets\new\Wafer\Wafer_TRAIN.arff',
-        r'C:\Users\Roi\Documents\Degree\Semester 8\פרוייקט גמר\datasets\new\Ozone Level Detection Data Set\ozone.csv'
-    ]
-    file_names = ['FordA','EthanolLevel','ElectricDevices','RefrigerationDevices','ChlorineConcentration'
-                  ,'TwoPatterns','SemgHandSubjectCh2','NonInvasiveFetalECGThorax1','Wafer','Ozone']
-
-    ofs = [None,*OnlineFeatureSelectionAC.get_all_ofs_algo()]
-
-    ol = OnlineLearningAC.get_all_ol_algo()
-    special_name = 'binary'
-    window_sizes = [300,500,1000]
-    exps = []
-    path = f"{os.path.join(DEFAULT_EXPORT_PATH, datetime.today().strftime('%d-%m-%Y %H.%M'))}({special_name})"
-    for file_name,file_path in zip(file_names,files_paths):
-        X, y, classes = Parse.read_ds(file_path, target_index=-1)
-        ds_exps = []
-        for window_size in window_sizes:
-            if window_size == 1000 and X.shape[0] < 2000: continue
-            sf_num = []
-            for i in range(len(ofs)):
-                if ofs[i]:
-                    ofs_algo = ofs[i]()
-                    try:
-                        mean_sf = int(np.ceil(np.mean(sf_num)))
-                        ofs_algo.set_algorithm_parameters(num_selected_features=mean_sf)
-                        print(mean_sf)
-                    except Exception as e:
-                        pass
-                else:
-                    ofs_algo = None
-                for j in range(len(ol)):
-                    ol_algo = ol[j]()
-                    ol_algo.set_algorithm_fit_parameters(classes=classes)
-                    experiment = Experiment(ofs=ofs_algo,ol=ol_algo , window_size=window_size, X=X, y=y, ds_name=file_name, transform_binary=True ,special_name=special_name)
-                    try:
-                        experiment.run()
-                    except Exception as e:
-                        print(experiment)
-                        print(e)
-                        continue
-
-                    exps.append(experiment)
-                    ds_exps.append(experiment)
-
-                    # experiment.save()
-                    if ofs_algo:
-                        sf_num.append(len(experiment.selected_features[-1]))
-
-        # Experiment.run_multiple_experiments(ds_exps)
-
-        Experiment.save_multiple_experiments(ds_exps, path=path)
-    Analysis.create_accuracy_survey_report(exps,export_path=path)
+    pass
