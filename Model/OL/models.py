@@ -10,11 +10,10 @@ class NeuralNetwrok(OnlineLearningAC):
     Neural Netwrok connection class
     """
 
-    DEFAULT_PARAMS = {}
-    DEFAULT_FIT_PARAMS = {"classes": [0, 1],
-                          "alpha": 0.0001,
-                          "max_iter": 1000,
-                          "random_state": 0}
+    DEFAULT_PARAMS = {"alpha": 0.0001,
+                      "max_iter": 1000,
+                      "random_state": 0}
+    DEFAULT_FIT_PARAMS = {"classes": [0, 1]}
 
     def __init__(self):
         super().__init__(name="Neural Netwrok", model=PerceptronMask, parameters=NeuralNetwrok.DEFAULT_PARAMS,
