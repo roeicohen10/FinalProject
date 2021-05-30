@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from scipy import stats
 import math
-from .ofs_ac import OnlineFeatureSelectionAC
+from Model.OFS.ofs_ac import OnlineFeatureSelectionAC
 
 
 

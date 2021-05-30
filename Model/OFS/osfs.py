@@ -3,7 +3,7 @@ import pandas as pd
 import math
 from scipy import stats
 from itertools import combinations
-from .ofs_ac import OnlineFeatureSelectionAC
+from Model.OFS.ofs_ac import OnlineFeatureSelectionAC
 
 
 

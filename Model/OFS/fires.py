@@ -2,7 +2,7 @@ import numpy as np
 from warnings import warn
 from scipy.stats import norm
 from sklearn.preprocessing import MinMaxScaler
-from .ofs_ac import OnlineFeatureSelectionAC
+from Model.OFS.ofs_ac import OnlineFeatureSelectionAC
 
 
 

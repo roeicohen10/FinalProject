@@ -2,8 +2,8 @@ import numpy as np
 import pandas as pd
 import math
 from scipy import stats
-from .osfs import OSFS
-from .ofs_ac import OnlineFeatureSelectionAC
+from Model.OFS.osfs import OSFS
+from Model.OFS.ofs_ac import OnlineFeatureSelectionAC
 
 
 

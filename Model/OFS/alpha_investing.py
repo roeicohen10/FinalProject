@@ -1,6 +1,6 @@
 import numpy as np
 from sklearn import linear_model
-from .ofs_ac import OnlineFeatureSelectionAC
+from Model.OFS.ofs_ac import OnlineFeatureSelectionAC
 
 
 
@@ -74,4 +74,5 @@ class AlphaInvesting(OnlineFeatureSelectionAC):
 
 
 if __name__ == '__main__':
-    pass
+    x = AlphaInvesting
+    print(y)

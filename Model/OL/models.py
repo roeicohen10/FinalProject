@@ -2,7 +2,7 @@ from skmultiflow.lazy import KNNClassifier
 from skmultiflow.neural_networks import PerceptronMask
 from skmultiflow.bayes import NaiveBayes
 from skmultiflow.meta import AdaptiveRandomForestClassifier
-from .ol_ac import OnlineLearningAC
+from Model.OL.ol_ac import OnlineLearningAC
 
 
 class NeuralNetwrok(OnlineLearningAC):
