@@ -72,11 +72,11 @@ class OnlineLearningAC:
         :return: list of ol algorithms
         """
         import importlib, inspect
-        models = []
+        models = {}
         for name, clss in inspect.getmembers(importlib.import_module('Model.OL.models'), inspect.isclass):
             if len(clss.__bases__) == 0 or cls.__name__ != clss.__bases__[0].__name__:
                 continue
-            models.append(clss)
+            models[clss.__name__] = clss
         return models
 
 

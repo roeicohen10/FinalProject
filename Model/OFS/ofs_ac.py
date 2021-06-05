@@ -70,12 +70,12 @@ class OnlineFeatureSelectionAC:
                 continue
             files_to_check.append(file_name[0])
 
-        algorithms, files_not_to_check = [], []
+        algorithms, files_not_to_check = {}, []
         for file in files_to_check:
             for name, clss in inspect.getmembers(importlib.import_module(f'Model.OFS.{file}'), inspect.isclass):
                 if len(clss.__bases__) == 0 or cls.__name__ != clss.__bases__[0].__name__:
                     continue
-                algorithms.append(clss)
+                algorithms[clss.__name__] = clss
         return algorithms
 
 if __name__ == '__main__':

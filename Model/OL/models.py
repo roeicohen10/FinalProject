@@ -5,9 +5,9 @@ from skmultiflow.meta import AdaptiveRandomForestClassifier
 from Model.OL.ol_ac import OnlineLearningAC
 
 
-class NeuralNetwrok(OnlineLearningAC):
+class NeuralNetwork(OnlineLearningAC):
     """
-    Neural Netwrok connection class
+    Neural Network connection class
     """
 
     DEFAULT_PARAMS = {"alpha": 0.0001,
@@ -16,8 +16,8 @@ class NeuralNetwrok(OnlineLearningAC):
     DEFAULT_FIT_PARAMS = {"classes": [0, 1]}
 
     def __init__(self):
-        super().__init__(name="Neural Netwrok", model=PerceptronMask, parameters=NeuralNetwrok.DEFAULT_PARAMS,
-                         fit_parameters=NeuralNetwrok.DEFAULT_FIT_PARAMS, lazy=False)
+        super().__init__(name="Neural Netwrok", model=PerceptronMask, parameters=NeuralNetwork.DEFAULT_PARAMS,
+                         fit_parameters=NeuralNetwork.DEFAULT_FIT_PARAMS, lazy=False)
 
 
 class KNN(OnlineLearningAC):

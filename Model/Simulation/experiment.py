@@ -202,6 +202,9 @@ class Experiment:
             experiment.save(path=path)
         Analysis.multiple_experiment_facade(experiments)
 
+    @classmethod
+    def save_graphs(cls, experiments):
+        Analysis.multiple_experiment_facade(experiments)
 
     @classmethod
     def transform_binary(cls, y):
